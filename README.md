@@ -4,6 +4,6 @@ For all your generic tool needs. Brought to you in Docker containers for freshne
 
 ### Useful links ###
 
-SQL Server in Docker: 
+SQL Server in Docker:  
 https://github.com/Microsoft/sql-server-samples/tree/master/samples/manage/windows-containers/mssql-server-2014-express-windows  
-https://github.com/brogersyh/Dockerfiles-for-windows   
+https://github.com/brogersyh/Dockerfiles-for-windows
