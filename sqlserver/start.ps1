@@ -1,54 +1,46 @@
-# place sql server data in mapped or unmapped volume as appropriate, start service
+# The script sets the sa password and start the SQL Service 
+# Also it attaches additional database from the disk
+# The format for attach_dbs
 
 param(
-[ValidateSet('interactive', 'detached', ignorecase=$true)]
-[string]$attachmode="interactive",
-[string]$sqlinstance="SQL",
-[string]$sqldata="c:\sql\data",
-[string]$sqlbackup="c:\sql\backup"
+[Parameter(Mandatory=$false)]
+[string]$sa_password,
+
+[Parameter(Mandatory=$false)]
+[string]$attach_dbs
 )
 
-set-strictmode -version latest
-$ErrorActionPreference = "Stop"
+# start the service
+Write-Verbose "Starting SQL Server..."
+start-service MSSQL`$SQLEXPRESS
 
-$sqldatatemp = "\datatemp"
-
-$attachmode
-$sqlinstance
-$sqldata
-$sqlbackup
-
-# move / copy data and backup folders as appropriate
-
-if ( test-path $sqldata) {
-  # host
-  if ( ! (test-path (join-path $sqldata ("MSSQL12." + $sqlinstance) ) ) ) {
-    # host data does not yet exist - bootstrap scenario
-    copy-item $sqldatatemp $sqldata -recurse
-  }
-}
-else {
-  # local
-  copy-item $sqldatatemp $sqldata -recurse
+if($sa_password -ne "_"){
+	Write-Verbose "Changing SA login credentials"
+    $sqlcmd = "ALTER LOGIN sa with password=" +"'" + $sa_password + "'" + ";ALTER LOGIN sa ENABLE;"
+    Invoke-Sqlcmd -Query $sqlcmd -ServerInstance ".\SQLEXPRESS" 
 }
 
-if ( ! (test-path $sqlbackup) ) {
-  # local
-  new-item $sqlbackup -itemtype directory
+$attach_dbs_cleaned = $attach_dbs.TrimStart('\\').TrimEnd('\\')
+
+$dbs = $attach_dbs_cleaned | ConvertFrom-Json
+
+if ($null -ne $dbs -And $dbs.Length -gt 0){
+	Write-Verbose "Attaching $($dbs.Length) database(s)"
+	Foreach($db in $dbs)
+	{
+		$files = @();
+		Foreach($file in $db.dbFiles)
+		{
+			$files += "(FILENAME = N'$($file)')";
+		}
+		
+		$files = $files -join ","
+		$sqlcmd = "sp_detach_db $($db.dbName);CREATE DATABASE $($db.dbName) ON $($files) FOR ATTACH ;"
+
+		Write-Verbose "Invoke-Sqlcmd -Query $($sqlcmd) -ServerInstance '.\SQLEXPRESS'"
+		Invoke-Sqlcmd -Query $sqlcmd -ServerInstance ".\SQLEXPRESS"
+	}
 }
 
-# start service
-$servicename = "mssql$" + $sqlinstance
-start-service $servicename
-
-# take interactive / detached action as appropriate
-if ($attachmode -eq "interactive") {
-  powershell
-}
-else {
- # sleep-loop indefinitely (until container stop)
- while (1 -eq 1) {
-   [DateTime]::Now.ToShortTimeString()
-   Start-Sleep -Seconds 1
-  }
-}
+Write-Verbose "Started SQL Server."
+while ($true) { Start-Sleep -Seconds 3600 }

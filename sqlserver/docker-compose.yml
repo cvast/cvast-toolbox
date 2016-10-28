@@ -1,0 +1,15 @@
+version: '2'
+services:   
+    sqlexpress:
+      restart: always
+      image: cvast/cvast-sqlexpress:DEV
+      build: 
+        context: .
+        dockerfile: ./Dockerfile
+      environment:
+        - sa_password=TestCVAST
+        - attach_dbs="[{'dbName':'VZAP-initial','dbFiles':['C:\\temp\\vzap\\VZAP_export.mdf','C:\\temp\\vzap\\VZAP_export_log.ldf']}]"
+      ports:
+        - '1433:1433'
+      volumes:
+        - C:/Users/CVAST/Documents/Repositories/cvast-toolbox/sqlserver/db:C:/temp/
