@@ -2,26 +2,26 @@ FROM jenkins
 
 USER root
 
+ENV INSTALL_DIR=/install
+
 RUN apt-get update -y &&\
     apt-get install -y sudo &&\
     apt-get install -y lxc &&\
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* &&\
+	curl -O https://bootstrap.pypa.io/get-pip.py &&\
+	python get-pip.py &&\
+	pip install awscli &&\
+	pip install docker-compose
 	
-RUN echo "jenkins ALL=NOPASSWD: ALL" >> /etc/sudoers
-
-RUN curl -O https://bootstrap.pypa.io/get-pip.py
-RUN sudo python get-pip.py
-RUN sudo pip install awscli
-RUN sudo pip install docker-compose
-
-USER jenkins
-
-ENV INSTALL_DIR=/install
-
+RUN groupadd docker &&\
+	usermod -aG docker jenkins
+	
 # Entrypoint to setup volume mounts
 COPY jenkins_entrypoint.sh ${INSTALL_DIR}/jenkins_entrypoint.sh
-RUN sudo chown -R jenkins:jenkins  ${INSTALL_DIR}
-RUN sudo chmod -R 700 ${INSTALL_DIR}
+RUN chown -R jenkins:jenkins  ${INSTALL_DIR}
+RUN chmod -R 700 ${INSTALL_DIR}
+
+USER jenkins
 
 # For later, if we want to install plugins
 # USER jenkins

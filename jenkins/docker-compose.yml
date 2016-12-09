@@ -2,7 +2,7 @@ version: '2'
 services:
 
     cvast-jenkins:
-      image: cvast/cvast-jenkins:4
+      image: cvast/cvast-jenkins:5
       restart: always
       build: 
         context: .
