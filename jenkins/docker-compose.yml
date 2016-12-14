@@ -2,7 +2,7 @@ version: '2'
 services:
 
     cvast-jenkins:
-      image: cvast/cvast-jenkins:5
+      image: cvast/cvast-jenkins:1.0
       restart: always
       build: 
         context: .
@@ -14,8 +14,6 @@ services:
       - TZ=EST
       volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /usr/bin/docker:/usr/bin/docker
-      - /lib/x86_64-linux-gnu/libdevmapper.so.1.02.1:/lib/x86_64-linux-gnu/libdevmapper.so.1.02.1
       - /root/.docker/config.json:/var/jenkins_home/.docker/config.json
       - jenkins-home:/var/jenkins_home/
 
