@@ -28,14 +28,13 @@ In order to avoid having to use sudo all the time, use this command inside the J
 Again, there are security concerns involved here, so use it at your own risk. 
 
 ### Docker credentials
-In order to use authenticated Docker commands in your Jenkins build (e.g. docker push), mount your credential file into the Jenkins container:
+In order to use authenticated Docker commands in your Jenkins build (e.g. docker push), either log in to your Docker repository inside the running container (more secure):
+```
+	docker login
+```
+
+or log in on the host machine and mount your credential file into the Jenkins container (slightly less secure):
 
 ```
 	/home/$your_username/.docker/config.json:/var/jenkins_home/.docker/config.json
 ```
-
-(if this file does not exist on your host machine, create it using:
-```
-	docker login
-```
-and fill out your credentials.)
