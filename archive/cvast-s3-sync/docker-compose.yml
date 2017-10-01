@@ -1,0 +1,14 @@
+version: '2'
+services:   
+
+    s3-sync:
+      image: cvast/cvast-s3-sync:test
+       build: 
+        context: .
+        dockerfile: ./Dockerfile
+      environment:
+        - S3_PATH=
+        - LOCAL_PATH=
+        - AWS_ACCESS_KEY_ID=
+        - AWS_SECRET_ACCESS_KEY=
+        - AWS_DEFAULT_REGION=
