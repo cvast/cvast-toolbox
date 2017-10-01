@@ -22,7 +22,7 @@ The jenkins user has sudo rights, which are required to access your host's Docke
 In order to avoid having to use sudo all the time, use this command inside the Jenkins container:
 
 ``` 
-	sudo chmod 777 /var/run/docker.sock
+	sudo chmod 666 /var/run/docker.sock
 ```
 
 Again, there are security concerns involved here, so use it at your own risk. 
@@ -33,7 +33,11 @@ In order to use authenticated Docker commands in your Jenkins build (e.g. docker
 ```
 	/home/$your_username/.docker/config.json:/var/jenkins_home/.docker/config.json
 ```
-
+If necessary, provide access to the file:
+```
+	sudo chown core:1000 /home/$your_username/.docker/config.json
+	sudo chmod 770 /home$your_usernamecore/.docker/config.json
+```
 (if this file does not exist on your host machine, create it using:
 ```
 	docker login
